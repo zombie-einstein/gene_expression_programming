@@ -34,6 +34,8 @@ class GEP:
         self.func_map = func_map
         self.n_args = n_args
         self.max_args = max([i['n'] for i in self.func_map.values()])
+        self.index = [str(i) for i in range(self.n_args)]
+        self.head_alleles = list(self.func_map.keys())+self.index
 
     def make_node(self, c):
         """Return an appropriate node based on an input character"""
@@ -58,14 +60,15 @@ class GEP:
     
         return root
 
+    def genome_length(self, len_h):
+        return len_h * (self.max_args - 1) + 1
+
     def random_genome(self, len_h):
         """Generate a random genome fitting the class parameters with argument genome head length"""
-        len_t = len_h * (self.max_args - 1) + 1
-        index = [str(i) for i in range(self.n_args)]
-        head_alleles = list(self.func_map.keys())+index
+        len_t = self.genome_length(len_h)
         ret = ''
         for i in range(len_h):
-            ret += choice(head_alleles)
+            ret += choice(self.head_alleles)
         for i in range(len_t):
-            ret += choice(index)
+            ret += choice(self.index)
         return ret
