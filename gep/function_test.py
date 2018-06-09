@@ -11,20 +11,20 @@ def sigmoid(x):
     return 1 / (1 + math.exp(-x))
 
 
-def sm(arg_list):
-    return arg_list[0] + arg_list[1]
+def sm(a, b):
+    return a + b
 
 
-def df(arg_list):
-    return arg_list[0] - arg_list[1]
+def df(a, b):
+    return a - b
 
 
-def mt(arg_list):
-    return arg_list[0] * arg_list[1]
+def mt(a, b):
+    return a * b
 
 
-def sq(arg_list):
-    return math.pow(arg_list[0], 2)
+def sq(a):
+    return math.pow(a, 2)
 
 
 f_map = {#'S': {'func': sr, 'n': 1},
@@ -39,14 +39,12 @@ mutation_rate = 0.05
 
 def test(test_func, len_h, n_in, generations=100, n_pop=50):
     
-    A = genome.GEP(f_map, n_in)
-    
-    genome_length = A.genome_length(len_h)
+    A = genome.GEP(f_map, n_in, len_h)
     
     population = list()
     
     for i in range(n_pop):
-        population.append({'g': A.random_genome(len_h), 'f': 0.0})
+        population.append({'g': A.random_genome(), 'f': 0.0})
     
     # Generational loop
     for i in range(generations):
@@ -61,19 +59,20 @@ def test(test_func, len_h, n_in, generations=100, n_pop=50):
         # Test population
         for j in population:
             
-            p = A.phenotype(j['g'])
+            p, c = A.phenotype(j['g'])
             cum_err = 0.0
             
             for k in tests:
-                cum_err += math.sqrt(math.pow(p.process(k[0])-k[1], 2))
+                cum_err += math.pow(p(k[0])-k[1], 2)
                 
-            j['f'] = sigmoid(1.0/(cum_err/n_tests)) if cum_err > 0.0 else 1.0
+            cum_err = math.sqrt(cum_err/n_tests)
+            j['f'] = sigmoid(1.0/(c*cum_err)) if cum_err > 0.0 else 1.0
             
         fits = [j['f'] for j in population]
         cum_sum = np.cumsum(fits)
         new_pop = list()
 
-        print("Max F: {:.5f}, Avg F: {:.5f} ".format(max(fits), sum(fits)/n_pop), population[fits.index(max(fits))]['g'])
+        print("Gen{:4} => Max F: {:.5f} | Avg F: {:.5f} | Prty: {:.2f} |".format(i, max(fits), sum(fits)/n_pop, 1.0-float(len(set([x['g'] for x in population])))/len(population)), population[fits.index(max(fits))]['g'])
         
         for j in range(int(n_pop/2)):
             n1 = random.uniform(0.0, cum_sum[-1])
@@ -86,26 +85,17 @@ def test(test_func, len_h, n_in, generations=100, n_pop=50):
             while n2 > cum_sum[i2]:
                 i2 += 1
                 
-            cross_point = random.randint(0, genome_length)
+            cross_point = random.randint(0, A.len_h+A.len_t)
             
             new1 = population[i1]['g'][:cross_point]+population[i2]['g'][cross_point:]
             new2 = population[i2]['g'][:cross_point]+population[i1]['g'][cross_point:]
             
-            for k in range(len_h):
-                if random.random() < mutation_rate:
-                    new1 = new1[:k]+random.choice(A.head_alleles)+new1[k+1:]
-                if random.random() < mutation_rate:
-                    new2 = new2[:k]+random.choice(A.head_alleles)+new2[k+1:]
-                    
-            for k in range(len_h, genome_length):
-                if random.random() < mutation_rate:
-                    new1 = new1[:k] + random.choice(A.index) + new1[k + 1:]
-                if random.random() < mutation_rate:
-                    new2 = new2[:k] + random.choice(A.index) + new2[k + 1:]
+            new1 = A.mutate_genome(mutation_rate, new1)
+            new2 = A.mutate_genome(mutation_rate, new2)
             
             new_pop.extend([{'g': new1, 'f': 0.0}, {'g': new2, 'f': 0.0}])
         
         population = new_pop
             
             
-test(lambda x: math.pow(x[0], 2)-x[0], 4, 1, 100, 20)
+test(lambda x: math.pow(x[0], 3)-x[1], 10, 2, 1000, 20)
