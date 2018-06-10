@@ -54,6 +54,7 @@ class GEP:
         self.len_h = len_h
         self.max_args = max([i['n'] for i in self.func_map.values()])
         self.len_t = len_h * (self.max_args - 1) + 1
+        self.len_g = self.len_h + self.len_t
         self.index = [str(i) for i in range(self.n_args)]
         self.head_alleles = list(self.func_map.keys())+self.index
 
@@ -64,12 +65,29 @@ class GEP:
         else:
             f = self.func_map[c]
             return FuncNode(f['func'], f['n'])
+    
+    def pre_phenotype(self, genome):
+        """From a genotype string return a executable function composition and the number of nodes used.
+        This uses prefix-gene expression, so we visit nodes in DFS pre-order"""
+        root = self.make_node(genome[0])
+        a = [root]
+        b = deque(genome[1:])
+        count = 1
+        while a:
+            count += 1
+            curr = a.pop()
+            for i in range(curr.n):
+                new_node = self.make_node(b.popleft())
+                curr.child.append(new_node)
+                a.append(new_node)
 
+        return root.process(), count
+    
     def phenotype(self, genome):
         """From a genotype string return a executable function composition and the number of nodes used"""
         root = self.make_node(genome[0])
         a = deque([root])
-        b = deque(deque(genome[1:]))
+        b = deque(genome[1:])
         count = 1
         while a:
             count += 1

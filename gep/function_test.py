@@ -4,34 +4,16 @@ import random
 import numpy as np
 
 
-#def sr(arg_list):
-#    return math.sqrt(arg_list[0])
-
 def sigmoid(x):
     return 1 / (1 + math.exp(-x))
 
 
-def sm(a, b):
-    return a + b
-
-
-def df(a, b):
-    return a - b
-
-
-def mt(a, b):
-    return a * b
-
-
-def sq(a):
-    return math.pow(a, 2)
-
-
-f_map = {#'S': {'func': sr, 'n': 1},
-         'q': {'func': sq, 'n': 1},
-         's': {'func': sm, 'n': 2},
-         'd': {'func': df, 'n': 2},
-         'm': {'func': mt, 'n': 2}}
+f_map = {'E': {'func': lambda x: math.exp(x), 'n': 1},
+         'Q': {'func': lambda x: math.pow(x, 2), 'n': 1},
+         'S': {'func': lambda x, y: x+y, 'n': 2},
+         'M': {'func': lambda x, y: x-y, 'n': 2},
+         'T': {'func': lambda x, y: x*y, 'n': 2},
+         'N': {'func': lambda x: -x, 'n': 1}}
 
 n_tests = 50
 mutation_rate = 0.05
