@@ -20,8 +20,8 @@ f_map = {'A': {'func': lambda x, y: x and y, 'n': 2},
          'E': {'func': lambda x, y: x == y, 'n': 2},
          'Q': {'func': lambda x, y: x != y, 'n': 2}}
 
-head_length_in = 15
-head_length_up = 15
+head_length_in = 20
+head_length_up = 20
 
 weight_func = GEP(f_map, 3, head_length_in)
 update_func = GEP(f_map, 4, head_length_up)
@@ -66,11 +66,14 @@ class NNet:
 POP = 50
 GENERATIONS = 400
 TESTS = 200
-MUTATION_RATE = 0.001
+MUTATION_RATE = 0.005
 
 test_funcs = [lambda x: x[0] and x[1],
               lambda x: x[0] and x[2],
               lambda x: x[1] and x[2],
+              lambda x: not (x[0] or x[1]),
+              lambda x: not (x[0] or x[2]),
+              lambda x: not (x[1] or x[2]),
               lambda x: x[0] or x[1],
               lambda x: x[0] or x[2],
               lambda x: x[1] or x[2]]
@@ -79,6 +82,7 @@ population = [NNet(weight_func.random_genome(), update_func.random_genome()) for
 
 for p in population:
     print(p.in_genome, p.up_genome)
+print('\n')
 
 for _ in range(GENERATIONS):
     
@@ -116,8 +120,8 @@ for _ in range(GENERATIONS):
         while n2 > cum_sum[i2]:
             i2 += 1
         
-        new_in_1, new_in_2 = crossover_1(population[i1].in_genome, population[i2].in_genome)
-        new_up_1, new_up_2 = crossover_1(population[i1].up_genome, population[i2].up_genome)
+        new_in_1, new_in_2 = crossover_2(population[i1].in_genome, population[i2].in_genome)
+        new_up_1, new_up_2 = crossover_2(population[i1].up_genome, population[i2].up_genome)
         
         new_in_1 = weight_func.mutate_genome(MUTATION_RATE, new_in_1)
         new_in_2 = weight_func.mutate_genome(MUTATION_RATE, new_in_2)
@@ -129,9 +133,11 @@ for _ in range(GENERATIONS):
         new_pop.append(NNet(new_in_2, new_up_2))
 
     population = new_pop
-    print(len(set([x.in_genome for x in population])),
-          len(set([x.up_genome for x in population])),
-          np.mean(score))
+    print("In Pop: {:3}, Up Pop: {:3}, Avg Score: {:5.2f}, Max Score: {:5.2f}"
+          .format(len(set([x.in_genome for x in population])),
+                  len(set([x.up_genome for x in population])),
+                  np.mean(score), np.max(score)))
 
+print('\n')
 for i, p in enumerate(population):
     print(p.in_genome, p.up_genome, ind_score[i], score[i])
