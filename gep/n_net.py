@@ -100,7 +100,7 @@ for _ in range(GENERATIONS):
                     ind_score[j][t] += 1
             p.reset()
     
-    score = [int(np.max(i)/np.std(i)) for i in ind_score]
+    score = [int(np.max(i)-np.std(i)) for i in ind_score]
     cum_sum = np.cumsum(score)
     new_pop = list()
 
@@ -120,8 +120,8 @@ for _ in range(GENERATIONS):
         while n2 > cum_sum[i2]:
             i2 += 1
         
-        new_in_1, new_in_2 = crossover_2(population[i1].in_genome, population[i2].in_genome)
-        new_up_1, new_up_2 = crossover_2(population[i1].up_genome, population[i2].up_genome)
+        new_in_1, new_in_2 = crossover_1(population[i1].in_genome, population[i2].in_genome)
+        new_up_1, new_up_2 = crossover_1(population[i1].up_genome, population[i2].up_genome)
         
         new_in_1 = weight_func.mutate_genome(MUTATION_RATE, new_in_1)
         new_in_2 = weight_func.mutate_genome(MUTATION_RATE, new_in_2)
@@ -133,10 +133,17 @@ for _ in range(GENERATIONS):
         new_pop.append(NNet(new_in_2, new_up_2))
 
     population = new_pop
+    
     print("In Pop: {:3}, Up Pop: {:3}, Avg Score: {:5.2f}, Max Score: {:5.2f}"
           .format(len(set([x.in_genome for x in population])),
                   len(set([x.up_genome for x in population])),
                   np.mean(score), np.max(score)))
+    
+    #if np.mean(score) > 14.0:
+    #    for i, p in enumerate(population):
+    #        print(p.in_genome, p.up_genome, ind_score[i], score[i])
+    #    print('\n')
+
 
 print('\n')
 for i, p in enumerate(population):
