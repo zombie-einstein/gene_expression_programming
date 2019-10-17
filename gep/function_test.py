@@ -8,7 +8,7 @@ def sigmoid(x):
     return 1 / (1 + math.exp(-x))
 
 
-f_map = {'E': {'func': lambda x: math.exp(x), 'n': 1},
+f_map = {#'E': {'func': lambda x: math.exp(x), 'n': 1},
          'Q': {'func': lambda x: math.pow(x, 2), 'n': 1},
          'S': {'func': lambda x, y: x+y, 'n': 2},
          'M': {'func': lambda x, y: x-y, 'n': 2},
@@ -41,7 +41,7 @@ def test(test_func, len_h, n_in, generations=100, n_pop=50):
         # Test population
         for j in population:
             
-            p, c = A.phenotype(j['g'])
+            p, c = A.pre_phenotype(j['g'])
             cum_err = 0.0
             
             for k in tests:
@@ -80,4 +80,4 @@ def test(test_func, len_h, n_in, generations=100, n_pop=50):
         population = new_pop
             
             
-test(lambda x: math.pow(x[0], 3)-x[1], 10, 2, 1000, 20)
+test(lambda x: math.pow(x[0], 2)-x[1], 10, 2, 1000, 20)
