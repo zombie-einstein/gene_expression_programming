@@ -206,19 +206,3 @@ class GEP:
         for i in range(self.len_h, self.len_h+self.len_t):
             ret += genome[i] if random() > mutation_rate else choice(self.index)
         return ret
-
-
-def tree_test():
-    """Tree building sanity check. Just prints BFS structure of a example tree"""
-    A = GEP({'s': {'func': lambda x, y: print('sum'), 'n': 2}, 'm': {'func': lambda x, y: print('Minus'), 'n': 2}},
-            2, 5)
-    R = A.pre_phenotype('sms011m01')
-    D = deque([R])
-    while D:
-        curr = D.popleft()
-        if isinstance(curr, FuncNode1) or isinstance(curr, FuncNode2):
-            curr.func(1, 2)
-            for i in curr.child:
-                D.append(i)
-        else:
-            print(curr)
