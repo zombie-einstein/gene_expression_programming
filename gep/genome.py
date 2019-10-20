@@ -1,5 +1,6 @@
 from collections import deque
 from random import choice, random
+import numba
 
 
 def kwarg_return(x):
@@ -132,4 +133,4 @@ def tree_test():
             for i in curr.child:
                 D.append(i)
         else:
-            print(curr.x)
+            print(curr)
